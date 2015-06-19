@@ -204,7 +204,7 @@ class Zenoss
                         "tagNumber", "serialNumber", "rackSlot", "collector","hwManufacturer","hwModel","osManufacturer","osModel","systems",
                         "groups","location","links","comments","snmpSysName","snmpLocation","snmpContact","snmpDescr","snmpCommunity","snmpVersion");
 
-        $json_data['keys'] = array($json_keys);
+        $json_data['keys'] = $json_keys;
         $json_data['uid'] = $deviceURI;
 
         $json_main['data'] = array($json_data);
