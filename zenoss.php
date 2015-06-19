@@ -70,7 +70,11 @@ class Zenoss
         curl_setopt($ch, CURLOPT_USERPWD, "{$this->username}:{$this->password}");
         curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookie);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8'));
-        curl_exec($ch);
+        $result = curl_exec($ch);
+
+        // error handling
+        if($result===false)
+            throw new Exception('Curl error: ' . curl_error($ch));
 
         // execute xmlrpc action
         curl_setopt($ch, CURLOPT_URL, "{$this->protocol}://{$this->address}:{$this->port}{$uri}");
