@@ -99,7 +99,7 @@ class Zenoss
         $request_url = $deviceURI . '/' . Zenoss::$ROUTERS[$router];
 
         // execute xmlrpc action
-        curl_setopt($ch, CURLOPT_URL, "{$this->protocol}://{$this->address}:{$this->port}/{$request_url}_router");
+        curl_setopt($ch, CURLOPT_URL, "{$this->protocol}://{$this->address}:{$this->port}{$request_url}_router");
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         $result = curl_exec($ch);
 
