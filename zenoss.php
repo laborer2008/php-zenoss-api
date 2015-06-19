@@ -20,6 +20,7 @@ class Zenoss
     // TODO: Documentation unclear about TreeRouter, Network6Router, TriggersRouter.
     private static $ROUTERS = array (
         'MessagingRouter' => 'messaging',
+        'DetailNavRouter' => 'detailnav',
         'EventsRouter' => 'evconsole',
         'ProcessRouter' => 'process',
         'ServiceRouter' => 'service',
@@ -281,5 +282,68 @@ class Zenoss
         $json_main['data'] = array($json_data);
 
         return $this->zQuery('DeviceRouter', 'getForm', $json_main, $deviceURI);
+    }
+
+    /**
+     * Returns the tree structure of an organizer hierarchy. Default tree root is MIBs.
+     *
+     * @access      public
+     * @param       string $deviceURI
+     * @return      json array
+     */
+    public function getMibTree($deviceURI, $id='/zport/dmd/Mibs')
+    {
+        $json_data = array();
+        $json_main = array();
+
+        $json_data['id'] = $id;
+
+        $json_main['data'] = array($json_data);
+
+        return $this->zQuery('MibRouter', 'getTree', $json_main, $id);
+    }
+
+    /**
+     * Get the properties of a MIB
+     *
+     * @access      public
+     * @param       string $deviceURI
+     * @return      json array
+     */
+    public function getMibInfo($deviceURI, $useFieldSets=true)
+    {
+        $json_data = array();
+        $json_main = array();
+
+        $json_data['uid'] = $deviceURI;
+        $json_data['useFieldSets'] = $useFieldSets;
+
+        $json_main['data'] = array($json_data);
+
+        return $this->zQuery('MibRouter', 'getInfo', $json_main, $deviceURI);
+    }
+
+    /**
+     * Get OID mappings
+     *
+     * @access      public
+     * @param       string $deviceURI
+     * @return      json array
+     */
+    public function getMibOidMappings($deviceURI, $dir='ASC', $sort='name', $start=0, $page='None', $limit=256)
+    {
+        $json_data = array();
+        $json_main = array();
+
+        $json_data['uid'] = $deviceURI;
+        $json_data['dir'] = $dir;
+        $json_data['sort'] = $sort;
+        $json_data['start'] = $start;
+        $json_data['page'] = $page;
+        $json_data['limit'] = $limit;
+
+        $json_main['data'] = array($json_data);
+
+        return $this->zQuery('MibRouter', 'getOidMappings', $json_main, $deviceURI);
     }
 }
