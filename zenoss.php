@@ -16,6 +16,21 @@
  
 class Zenoss
 {
+    // TODO: make it constant
+    private static $ROUTERS = array (
+        'MessagingRouter' => 'messaging',
+        'EventsRouter' => 'evconsole',
+        'ProcessRouter' => 'process',
+        'ServiceRouter' => 'service',
+        'DeviceRouter' => 'device',
+        'NetworkRouter' => 'messaging',
+        'TemplateRouter' => 'template',
+        'DetailNavRouter' => 'detailnav',
+        'ReportRouter' => 'report',
+        'MibRouter' => 'mib',
+        'ZenPackRouter' => 'zenpack'
+    );
+
     private $tmp;
     private $protocol;
     private $address;
@@ -58,11 +73,16 @@ class Zenoss
      * @param       string $uri
      * @return      json array
      */
-    private function zQuery(array $data, $uri)
+    private function zQuery($router, $method, array $data, $deviceURI)
     {
+        if(!array_key_exists($router, Zenoss::$ROUTERS))
+            throw new Exception('Router "' + $router + '" is not available.');
+
         // inject common variables to data container
         $data['tid'] = 1;
         $data['type'] = "rpc";
+        $data['action'] = $router;
+        $data['method'] = $method;
 
         // fetch authorization cookie
         $ch = curl_init("{$this->protocol}://{$this->address}:{$this->port}/zport/acl_users/cookieAuthHelper/login");
@@ -76,8 +96,10 @@ class Zenoss
         if($result===false)
             throw new Exception('Curl error: ' . curl_error($ch));
 
+        $request_url = $deviceURI . '/' . Zenoss::$ROUTERS[$router];
+
         // execute xmlrpc action
-        curl_setopt($ch, CURLOPT_URL, "{$this->protocol}://{$this->address}:{$this->port}{$uri}");
+        curl_setopt($ch, CURLOPT_URL, "{$this->protocol}://{$this->address}:{$this->port}/{$request_url}_router");
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         $result = curl_exec($ch);
 
@@ -102,11 +124,9 @@ class Zenoss
         $json_data = array();
         $json_main = array();
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getCollectors";
         $json_main['data'] = $json_data;
 
-        return $this->zQuery($json_main, $deviceURI.'/device_router');
+        return $this->zQuery('DeviceRouter', 'getCollectors', $json_main, $deviceURI);
     }
 
     /**
@@ -135,11 +155,9 @@ class Zenoss
         $json_data['sort'] = $sort;
         $json_data['params'] = $json_params;
 
-        $json_main['action'] = "EventsRouter";
-        $json_main['method'] = "query";
         $json_main['data'] = array($json_data);
 
-        return $this->zQuery($json_main, $deviceURI.'/evconsole_router');
+        return $this->zQuery('EventsRouter', 'query', $json_main, $deviceURI);
     }
 
     /**
@@ -163,11 +181,9 @@ class Zenoss
         $json_data['meta_type'] = "IpInterface";
         $json_data['keys'] = $json_keys;
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getComponents";
         $json_main['data'] = array($json_data);
 
-        return $this->zQuery($json_main, $deviceURI.'/device_router');
+        return $this->zQuery('DeviceRouter', 'getComponents', $json_main, $deviceURI);
     }
 
 
@@ -191,11 +207,9 @@ class Zenoss
         $json_data['keys'] = array($json_keys);
         $json_data['uid'] = $deviceURI;
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getInfo";
         $json_main['data'] = array($json_data);
 
-        return $this->zQuery($json_main, $deviceURI.'/getSubDevices');
+        return $this->zQuery('DeviceRouter', 'getInfo', $json_main, $deviceURI);
     }
 
     /**
@@ -220,11 +234,9 @@ class Zenoss
         $json_data['start'] = $start;
         $json_data['params'] = $json_params;
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getDevices";
         $json_main['data'] = $json_data;
 
-        return $this->zQuery($json_main, '/zport/dmd/Devices/getSubDevices');
+        return $this->zQuery('DeviceRouter', 'getDevices', $json_main, '/zport/dmd/Devices/getSubDevices');
     }
 
     /**
@@ -236,19 +248,17 @@ class Zenoss
      * @param       int $drange
      * @return      json array
      */
-    public function getDeviceInterfaceRRD($deviceURI, $interface, $drange=129600)
+    public function getDeviceInterfaceRRD($deviceURI, $drange=129600)
     {
         $json_data = array();
         $json_main = array();
 
-        $json_data['uid'] = $interface;
+        $json_data['uid'] = $deviceURI;
         $json_data['drange'] = $drange;
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getGraphDefs";
         $json_main['data'] = array($json_data);
 
-        return $this->zQuery($json_main, $deviceURI.'/device_router');
+        return $this->zQuery('DeviceRouter', 'getGraphDefs', $json_main, $deviceURI);
     }
 
     /**
@@ -259,17 +269,15 @@ class Zenoss
      * @param       string $interface
      * @return      json array
      */
-    public function getDeviceInterfaceDetails($deviceURI, $interface)
+    public function getDeviceInterfaceDetails($deviceURI)
     {
         $json_data = array();
         $json_main = array();
 
-        $json_data['uid'] = $interface;
+        $json_data['uid'] = $deviceURI;
 
-        $json_main['action'] = "DeviceRouter";
-        $json_main['method'] = "getForm";
         $json_main['data'] = array($json_data);
 
-        return $this->zQuery($json_main, $deviceURI.'/device_router');
+        return $this->zQuery('DeviceRouter', 'getForm', $json_main, $deviceURI);
     }
 }
