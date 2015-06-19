@@ -17,17 +17,23 @@
 class Zenoss
 {
     // TODO: make it constant
-    // TODO: Documentation unclear about TreeRouter, Network6Router, TriggersRouter.
+    // TODO: Documentation unclear about TreeRouter.
     private static $ROUTERS = array (
+        'CallhomeRouter' => 'callhome',
+        'DashboardRouter' => 'dashboard',
         'MessagingRouter' => 'messaging',
         'DetailNavRouter' => 'detailnav',
         'EventsRouter' => 'evconsole',
+        'JobsRouter' => 'jobs',
+        'Network6Router' => 'network_6',
         'ProcessRouter' => 'process',
+        'SearchRouter' => 'search',
         'ServiceRouter' => 'service',
         'SettingsRouter' => 'settings',
         'DeviceRouter' => 'device',
         'NetworkRouter' => 'messaging',
         'TemplateRouter' => 'template',
+        'TriggersRouter' => 'triggers',
         'DetailNavRouter' => 'detailnav',
         'ReportRouter' => 'report',
         'MibRouter' => 'mib',
