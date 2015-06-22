@@ -352,4 +352,23 @@ class Zenoss
 
         return $this->zQuery('MibRouter', 'getOidMappings', $json_main, $deviceURI);
     }
+
+    /**
+     * Get the data sources for a template
+     *
+     * @access      public
+     * @param       string $deviceURI
+     * @return      json array
+     */
+    public function getTemplateDataSources($deviceURI)
+    {
+        $json_data = array();
+        $json_main = array();
+
+        $json_data['uid'] = $deviceURI;
+
+        $json_main['data'] = array($json_data);
+
+        return $this->zQuery('TemplateRouter', 'getDataSources', $json_main, $deviceURI);
+    }
 }
